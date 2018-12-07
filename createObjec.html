@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+	<script>
+		//1.工厂模式
+		function cO1(a,b,c){
+			var o=new Object();
+			o.a=a;
+			o.b=b;
+			o.c=c;
+			o.sayHi=function(){
+               console.log('hi');
+			}
+			return o
+		}
+		var co1=cO1('a','b','c');
+		//工厂模式特点是可以多次重复相似对象,缺点是无法解决对象识别
+		//即所有o都是object类型
+        //2.构造函数模式
+        function cO2(a,b,c){
+        	this.a=a;
+        	this.b=b;
+        	this.c=c;
+        	this.sayHi=function(){
+        		console.log('hi');
+        	}
+        }
+        var co2=new cO2('a','b','c');
+        //构造函数模式不足:每次实例化一个obj都包含不同的sayHi方法，即每次实例化都要创建一个fonction实例，这样是没有必要的
+
+        //3.原型模式
+        function cO3(a,b,c){
+
+        }
+        cO3.prototype.a=this.a;
+        cO3.prototype.b=this.b;
+        cO3.prototype.c=this.c;
+        cO3.prototype.arr=[1,2,3]
+        cO3.prototype.sayHi=function(){
+        	console.log('hi');
+        }
+        var co3=new cO3('a','b','c');
+        var co33=new cO3('a','b','c');
+        //通过把属性放在构造函数的prototype里，实现了只需要创建一个function实例就可以实例化多次而不进行没有必要的操作
+        //缺点,共享性，即更改任意实例化的对象__proto__[obj]都会更改prototype的值,会导致其他对象取值错误;
+        co33.arr.push(666);
+        console.log(co3.arr);//[1,2,3,666]
+        //一般公共方法会放在prototype,而基本属性放在构造函数中(即组合方式)
+        
+        //4.组合模式
+        function cO4(a,b,c){
+        	this.a=a;
+        	this.b=b;
+        	this.c=c;
+        	this.arr=[1,2,3]
+        }
+        cO4.prototype.sayArr=function(){
+        	console.log(this.arr);
+        };
+        // str='    {{aa}{{bb}}   '
+        var co4=new cO4('a','b','c')
+        var co44=new cO4('a','b','c');
+        co4.arr.push(666);
+        console.log(co44.arr);//1,2,3
+        //避免共享的放在构造函数，可以共享的放在prototype中
+        //对co4的arr进行操作不会影响co44的arr
+
+        //5.动态原型
+        function cO5(a,b,c){
+            this.a=a;
+            this.b=b;
+            this.c=c;
+            if(typeof this.sayName!='function'){
+                Person.prototype.sayName=function(){
+                    alert(this.a)
+                }
+            }
+        }
+        //可以通过检查某个方法是否有效，来判断是否需要添加原型
+
+        //6.寄生构造函数模式
+
+        function cO6(a,b,c){
+            var o=new Object();
+            o.a=a;
+            o.b=b;
+            o.c=c;
+            return o
+        }
+        var co6=new cO6(1,2,3);
+        //和工厂模式几乎一模一样
+        //区别在于：new,cO6此时是个构造函数
+        //构造函数在默认返回值会返回实例，通过return o 来手动设置返回值
+        //缺点:无法通过instanceof来判断类型,和工厂模式类似
+        console.log(co6 instanceof Object);
+
+        //7.稳妥模式
+        function cO7(a,b,c){
+            var o=new Object();
+            o.sayHi=function(){
+                alert(a)
+            }
+            return o;
+        }
+        var co7=new cO7(1,2,3);
+        co7.sayHi()
+        //只能通过sayHi方法来获取a的值（安全）
+        //缺点：与寄生和工厂模式类似，无法用instanceof来判断类型
+
+        
+
+
+
+
+
+	</script>
+</body>
+</html>

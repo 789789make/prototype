@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+	<script>
+		//1.原型链继承
+		function P1(a,b,c){
+			this.a=a;
+			this.b=b;
+			this.c=c;
+			this.arr=[1,2,3]
+		}
+		P1.prototype.sayHi=function(){
+			alert(this.a)
+		}
+		function C1(a,b,c){
+            
+		}
+		C1.prototype=new P1();
+        var c1=new C1();
+        var cc1=new C1()
+        c1.arr.push(666)
+        // console.log(c1.b);
+        // console.log(cc1.arr);//1,2,3,666
+        //存在复用的问题;
+        //创建子类型实例时，无法向超类型（C1）函数中传输参数
+
+        //2.构造函数继承
+        function P2(a,b,c){
+        	this.a=a;
+        	this.b=b;
+        	this.c=c;
+        }
+        P2.prototype.sayHi=function(){
+        	alert(this.a)
+        }
+        function C2(a,b,c){
+        	
+        	P2.call(this,a,b,c)
+        	this.d='hhh'
+        }
+        var c2=new C2(1,2,3);
+        // console.log(c2.a)
+        // console.log(c2.d)//hhh
+        // c2.sayHi()
+        //缺点，无法获取到父类(P2)的prototype中的属性和方法
+
+        //3.组合式继承（现在使用的很广）
+        function P3(a,b,c){
+        	this.a=a;
+        	this.b=b;
+        	this.c=c;
+        }
+        P3.prototype.sayHi=function(){
+        	console.log(this.a);
+        }
+        function C3(a,b,c){
+        	P3.call(this,a,b,c)
+        }
+        C3.prototype=new P3(6,6,6);
+        C3.prototype.constructor=C3;
+        var c3=new C3(1,2,3);
+        c3.sayHi();
+        console.log(c3.a)//1
+        //65行（第二次）和63行(第一次)都执行了一次构造函数,这是不必要的
+        //重复的元素会被覆盖（第一次调用时传入的6被第二次的3覆盖）
+        //4.原型式继承
+        function object(obj){
+              function F(){};
+              F.prototype=obj;
+              return new F()
+        }
+        function P4(a,b,c){
+        	this.a=a;
+        	this.b=b;
+        	this.c=c;
+        	this.d='hhh'
+        }
+        P4.prototype.sayHi=function(){
+        	console.log('hello');
+        }
+        P4.prototype.arr=[1,2,3]
+        var c4=object(P4.prototype);
+        var cc4=object(P4.prototype);
+        cc4.arr.push(666);
+        console.log(c4.d);//undefined
+        console.log(c4.arr)//1,2,3,666
+        c4.sayHi()//hello
+        //问题:共享问题，无法继承构造函数内的属性，只能继承到prototype
+
+        //5.寄生式继承
+        function P5(a,b,c){
+        	this.a=a;
+        	this.b=b;
+        	this.c=c
+        }
+        P5.prototype.sayHi=function(){
+        	console.log('hello')
+        }
+        function createObj(pObj){
+            var clone=object(pObj.prototype);
+            clone.sayHi=function(){
+            	console.log('hi')
+            }
+            return clone
+        }
+        var c6=createObj(P5.prototype);
+        c6.sayHi();//hi;
+        //无法获取构造函数内的属性，只能获取prototype
+        //每次给与新方法都需要重新写一个createObj方法，无法实现函数复用
+
+        //6.寄生组合式继承
+        function P6(a,b,c){
+        	this.a=a;
+        	this.b=b;
+        	this.c=c;
+        }
+        P6.prototype.sayHi=function(){
+        	console.log(this.a)
+        }
+        function C6(a,b,c){
+        	P6.call(this,a,b,c);
+        	this.d='hhh'
+        }
+        C6.prototype=object(P6.prototype)
+        C6.prototype.constructor=C6;
+        var c6=new C6(7,8,9);
+        c6.sayHi();
+        //不会实现多次调用。不会造成覆盖，基本一致认可的继承方法
+
+
+        //TIP:new 一个构造函数会发生什么
+        function A(a,b,c){this.a=a;this.b=b;this.c=c}
+        A.prototype.sayHi=function(){
+        	console.log(this.a)
+        }
+        //var a=new A()
+        function newObj(obj){
+        var o=new Object();
+        o.__proto__=A.prototype;
+        var res=obj.apply(o,[1,2,3]);
+        return res?res:o;
+        }
+        console.log(newObj(A))//A{a:1,b:2,c:3}
+        console.log(new A(1,2,3))//A{a:1,b:2,c:3}
+        console.log(new A(1,2,3).sayHi==new A(1,2,3).sayHi)
+        //ps:new构造函数产生的对象==都为false,但是他们prototype是相等的
+        
+
+        //关于object.create
+
+        console.log(typeof Object.create({}).toString);//function
+        console.log(typeof Object.create(null).toString)//undefined
+        //create(null)话就是个空对象，不存在任何属性
+        //create({})还存在js中默认的对象属性
+        //原因Object.create({})的对象的__proto__指向{}
+        console.log(new Object())
+        console.log(Object.create({}))
+        function AAA(A,B){
+        	this.A=A;
+        	this.B=B;
+        }
+        AAA.prototype.c='c'
+        console.log(Object.create(AAA.prototype))
+        //object.create创建的对象的__proto__指向传入的对象,即Object.create(AAA.prototype).__proto__==AAA.prototype,而Object.create(null)创建的对象__proto__指向null.prototype,后者是没有任何属性的,即object.prototype.__proto__.__proto__=null
+        console.log(object.prototype.__proto__.__proto__);//null
+
+
+	</script>
+</body>
+</html>

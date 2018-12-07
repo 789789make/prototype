@@ -168,6 +168,48 @@
         //object.create创建的对象的__proto__指向传入的对象,即Object.create(AAA.prototype).__proto__==AAA.prototype,而Object.create(null)创建的对象__proto__指向null.prototype,后者是没有任何属性的,即object.prototype.__proto__.__proto__=null
         console.log(object.prototype.__proto__.__proto__);//null
 
+        
+        //新增一个es6的继承写法
+
+        class P7{
+        	constructor(a,b,c){
+        		this.a=a;
+        		this.b=b;
+        		this.c=c;
+        		this.d='6'
+        	}
+        	sayHi(){
+        		console.log(this.a)
+        	}
+        	static say6(d){
+        		console.log(d)
+        	}
+
+        }
+        console.log(P7.say6)
+        //static相当于P7.say6=function(d){console.log(d)}
+        //相当于function P7(a,b,c){this.a=a;this.b=b;this.c=c},P7.prototype.sayHi=function(){console.log(this.a)}
+      
+        //继承
+        class C7 extends P7{
+        	constructor(a,b,c){
+        		super(a,b,c);//如果需要调用父函数的数据则需要加上super(),此时super相当于P7.call(this,a,b,c)
+        	}
+        	sayBye(){
+        		super.sayHi()//此时super指向P7的prototype
+        	}
+        	static say6(d){
+        		super.say6(d)//放在static时，super指向P7构造函数
+        	}
+        }
+
+        var c7=new C7(1,2,3);
+        console.log(c7)
+        c7.sayBye();//1
+        c7.sayHi();//1
+        C7.say6(6);//6
+        
+
 
 	</script>
 </body>
